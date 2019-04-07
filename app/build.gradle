@@ -175,6 +175,8 @@ dependencies {
     }
     libs "MilosKozak:danars-support-lib:master@zip"
 
+    implementation fileTree(include: ['*.jar'], dir: '../../rest-client-v3/build/libs')
+
     implementation "com.android.support:appcompat-v7:${supportLibraryVersion}"
     implementation "com.android.support:support-v13:${supportLibraryVersion}"
     implementation "com.android.support:support-v4:${supportLibraryVersion}"

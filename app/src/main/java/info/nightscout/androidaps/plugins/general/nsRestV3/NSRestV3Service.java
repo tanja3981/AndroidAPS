@@ -36,8 +36,8 @@ import info.nightscout.androidaps.plugins.general.overview.events.EventDismissNo
 import info.nightscout.androidaps.plugins.general.overview.events.EventNewNotification;
 import info.nightscout.androidaps.plugins.general.overview.notifications.Notification;
 import info.nightscout.androidaps.utils.*;
-import io.socket.client.IO;
-import io.socket.client.Socket;
+import info.nightscout.api.v3.NightscoutService;
+import info.nightscout.api.v3.documents.Version;
 import io.socket.emitter.Emitter;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,60 +45,74 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
-public class RestV3Service extends Service {
+
+public class NSRestV3Service extends Service {
     private static Logger log = LoggerFactory.getLogger(L.NSCLIENT);
 
-    static public PowerManager.WakeLock mWakeLock;
-    private IBinder mBinder = new RestV3Service.LocalBinder();
+    public static PowerManager.WakeLock mWakeLock;
+    public static Handler handler;
+    private IBinder mBinder = new NSRestV3Service.LocalBinder();
 
     static ProfileStore profileStore;
 
-    static public Handler handler;
 
-    public static Socket mSocket;
     public static boolean isConnected = false;
     public static boolean hasWriteAuth = false;
     private static Integer dataCounter = 0;
     private static Integer connectCounter = 0;
-
+    private static Integer errorCounter = 0;
 
     public static String nightscoutVersionName = "";
-    public static Integer nightscoutVersionCode = 0;
+    public static String nightscoutApiVersionName = "";
 
-    private boolean nsEnabled = false;
-    static public String nsURL = "";
-    private String nsAPISecret = "";
-    private String nsDevice = "";
-    private Integer nsHours = 48;
-
+    long lastQueryTime = 0;
+    long lastSendTime = 0;
     public long lastResendTime = 0;
-
     public long latestDateInReceivedData = 0;
 
+    private boolean nsEnabled = false;
+    public static String nsURL = "";
+    private String nsAPISecret = "";
     private String nsAPIhashCode = "";
+    private String nsDevice = "";
+    private Integer nsHours = 48;
+    private long defaultSyncInterval = 5 * 1000;
 
     public static UploadQueue uploadQueue = new UploadQueue();
 
-    private ArrayList<Long> reconnections = new ArrayList<>();
     private int WATCHDOG_INTERVAL_MINUTES = 2;
     private int WATCHDOG_RECONNECT_IN = 15;
     private int WATCHDOG_MAXCONNECTIONS = 5;
 
-    public RestV3Service() {
+
+    public NSRestV3Service() {
         registerBus();
         if (handler == null) {
-            HandlerThread handlerThread = new HandlerThread(RestV3Service.class.getSimpleName() + "Handler");
-            handlerThread.start();
-            handler = new Handler(handlerThread.getLooper());
+            //HandlerThread handlerThread = new HandlerThread(NSRestV3Service.class.getSimpleName() + "Handler");
+            //handlerThread.start();
+            final Runnable runnableService = new Runnable() {
+                @Override
+                public void run() {
+                    syncData();
+                    // Repeat this runnable code block again every ... min
+                    handler.postDelayed(runnableService, defaultSyncInterval);
+                }
+            };
+
+            handler = new Handler();
+            handler.post(runnableService);
         }
 
         PowerManager powerManager = (PowerManager) MainApp.instance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
-        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NSClientService");
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NSRestV3ClientService");
         initialize();
+    }
+
+    public void syncData() {
+
     }
 
     @Override
@@ -114,8 +128,8 @@ public class RestV3Service extends Service {
     }
 
     public class LocalBinder extends Binder {
-        public RestV3Service getServiceInstance() {
-            return RestV3Service.this;
+        public NSRestV3Service getServiceInstance() {
+            return NSRestV3Service.this;
         }
     }
 
@@ -141,8 +155,9 @@ public class RestV3Service extends Service {
 
     @Subscribe
     public void onStatusEvent(EventAppExit event) {
-        if (L.isEnabled(L.NSCLIENT))
+        if (L.isEnabled(L.NSCLIENT)) {
             log.debug("EventAppExit received");
+        }
 
         destroy();
 
@@ -154,7 +169,7 @@ public class RestV3Service extends Service {
         if (ev.isChanged(R.string.key_nsclientinternal_url) ||
                 ev.isChanged(R.string.key_nsclientinternal_api_secret) ||
                 ev.isChanged(R.string.key_nsclientinternal_paused)
-                ) {
+        ) {
             latestDateInReceivedData = 0;
             destroy();
             initialize();
@@ -197,21 +212,17 @@ public class RestV3Service extends Service {
         } else if (!nsURL.equals("")) {
             try {
                 MainApp.bus().post(new EventNSClientStatus("Connecting ..."));
-                IO.Options opt = new IO.Options();
-                opt.forceNew = true;
-                opt.reconnection = true;
-                mSocket = IO.socket(nsURL, opt);
-                mSocket.on(Socket.EVENT_CONNECT, onConnect);
-                mSocket.on(Socket.EVENT_DISCONNECT, onDisconnect);
-                mSocket.on(Socket.EVENT_PING, onPing);
+
+                NightscoutService service = new NightscoutService(nsURL);
+                Version version = service.getVersion();
+                NSRestV3Service.nightscoutVersionName = version.version;
+                NSRestV3Service.nightscoutApiVersionName = version.apiVersion;
+                onConnect();
+                resetErrors();
                 MainApp.bus().post(new EventNSClientNewLog("NSCLIENT", "do connect"));
-                mSocket.connect();
-                mSocket.on("dataUpdate", onDataUpdate);
-                mSocket.on("announcement", onAnnouncement);
-                mSocket.on("alarm", onAlarm);
-                mSocket.on("urgent_alarm", onUrgentAlarm);
-                mSocket.on("clear_alarm", onClearAlarm);
-            } catch (URISyntaxException | RuntimeException e) {
+
+            } catch (IOException e) {
+                errorCounter++;
                 MainApp.bus().post(new EventNSClientNewLog("NSCLIENT", "Wrong URL syntax"));
                 MainApp.bus().post(new EventNSClientStatus("Wrong URL syntax"));
             }
@@ -221,14 +232,22 @@ public class RestV3Service extends Service {
         }
     }
 
-    private Emitter.Listener onConnect = new Emitter.Listener() {
+    private void resetErrors() {
+        errorCounter = 0;
+    }
+
+    private void onConnect() {
+        connectCounter++;
+        MainApp.bus().post(new EventNSClientNewLog("NSCLIENT", "connect #" + connectCounter + " event. ID: " + socketId));
+
+    }
+    private void onConnect {
         @Override
         public void call(Object... args) {
             connectCounter++;
-            String socketId = mSocket != null ? mSocket.id() : "NULL";
+
             MainApp.bus().post(new EventNSClientNewLog("NSCLIENT", "connect #" + connectCounter + " event. ID: " + socketId));
-            if (mSocket != null)
-                sendAuthMessage(new NSAuthAck());
+
             watchdog();
         }
     };
@@ -270,14 +289,7 @@ public class RestV3Service extends Service {
 
     public synchronized void destroy() {
         if (mSocket != null) {
-            mSocket.off(Socket.EVENT_CONNECT);
-            mSocket.off(Socket.EVENT_DISCONNECT);
-            mSocket.off(Socket.EVENT_PING);
-            mSocket.off("dataUpdate");
-            mSocket.off("announcement");
-            mSocket.off("alarm");
-            mSocket.off("urgent_alarm");
-            mSocket.off("clear_alarm");
+            //TODO no stopping needed, is it?
 
             MainApp.bus().post(new EventNSClientNewLog("NSCLIENT", "destroy"));
             isConnected = false;
@@ -288,7 +300,7 @@ public class RestV3Service extends Service {
     }
 
 
-    public void sendAuthMessage(NSAuthAck ack) {
+    public void addAuthentication(NSAuthAck ack) {
         JSONObject authMessage = new JSONObject();
         try {
             authMessage.put("client", "Android_" + nsDevice);
@@ -471,7 +483,7 @@ public class RestV3Service extends Service {
     private Emitter.Listener onDataUpdate = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            RestV3Service.handler.post(new Runnable() {
+            NSRestV3Service.handler.post(new Runnable() {
                 @Override
                 public void run() {
                     PowerManager powerManager = (PowerManager) MainApp.instance().getApplicationContext().getSystemService(Context.POWER_SERVICE);
