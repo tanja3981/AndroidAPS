@@ -220,8 +220,7 @@ public class MainApp extends Application {
             pluginsList.add(NSClientPlugin.getPlugin());
 //            if (engineeringMode) pluginsList.add(TidepoolPlugin.INSTANCE);
             pluginsList.add(MaintenancePlugin.initPlugin(this));
-            if (engineeringMode)
-                pluginsList.add(AutomationPlugin.INSTANCE);
+            pluginsList.add(AutomationPlugin.INSTANCE);
 
             pluginsList.add(ConfigBuilderPlugin.getPlugin());
 
