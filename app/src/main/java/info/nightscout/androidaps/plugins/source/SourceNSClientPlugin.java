@@ -10,7 +10,6 @@ import info.nightscout.androidaps.interfaces.PluginBase;
 import info.nightscout.androidaps.interfaces.PluginDescription;
 import info.nightscout.androidaps.interfaces.PluginType;
 import info.nightscout.androidaps.logging.L;
-import info.nightscout.androidaps.plugins.constraints.objectives.ObjectivesPlugin;
 import info.nightscout.androidaps.plugins.general.nsclient.data.NSSgv;
 import info.nightscout.androidaps.utils.JsonHelper;
 import info.nightscout.androidaps.utils.SP;
@@ -94,8 +93,7 @@ public class SourceNSClientPlugin extends PluginBase implements BgSourceInterfac
         }
 
         // Objectives 0
-        ObjectivesPlugin.getPlugin().bgIsAvailableInNS = true;
-        ObjectivesPlugin.getPlugin().saveProgress();
+        SP.putBoolean(R.string.key_ObjectivesbgIsAvailableInNS, true);
     }
 
     private void storeSgv(JSONObject sgvJson) {
