@@ -12,6 +12,7 @@ import info.nightscout.androidaps.MainApp;
 import info.nightscout.androidaps.R;
 import info.nightscout.androidaps.events.EventAppInitialized;
 import info.nightscout.androidaps.logging.L;
+import info.nightscout.androidaps.plugins.bus.RxBus;
 import info.nightscout.androidaps.plugins.insulin.InsulinOrefRapidActingPlugin;
 import info.nightscout.androidaps.plugins.profile.ns.NSProfilePlugin;
 import info.nightscout.androidaps.plugins.pump.virtual.VirtualPumpPlugin;
@@ -76,7 +77,7 @@ public class ConfigBuilderPlugin extends PluginBase {
         upgradeSettings();
         loadSettings();
         setAlwaysEnabledPluginsEnabled();
-        MainApp.bus().post(new EventAppInitialized());
+        RxBus.INSTANCE.send(new EventAppInitialized());
     }
 
     private void setAlwaysEnabledPluginsEnabled() {
