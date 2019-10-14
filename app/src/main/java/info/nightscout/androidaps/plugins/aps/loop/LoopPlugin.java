@@ -482,7 +482,7 @@ public class LoopPlugin extends PluginBase {
                         ObjectivesPlugin.getPlugin().saveProgress();
                     }
                 }
-                MainApp.bus().post(new EventAcceptOpenLoopChange());
+                RxBus.INSTANCE.send(new EventAcceptOpenLoopChange());
             }
         });
         FabricPrivacy.getInstance().logCustom("AcceptTemp");

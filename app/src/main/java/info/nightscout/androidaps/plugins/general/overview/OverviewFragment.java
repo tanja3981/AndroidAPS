@@ -898,6 +898,24 @@ public class OverviewFragment extends Fragment implements View.OnClickListener, 
                         FabricPrivacy::logException
                 ));
         disposable.add(RxBus.INSTANCE
+                .toObservable(EventAcceptOpenLoopChange.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> scheduleUpdateGUI("EventAcceptOpenLoopChange"),
+                        FabricPrivacy::logException
+                ));
+        disposable.add(RxBus.INSTANCE
+                .toObservable(EventCareportalEventChange.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> scheduleUpdateGUI("EventCareportalEventChange"),
+                        FabricPrivacy::logException
+                ));
+        disposable.add(RxBus.INSTANCE
+                .toObservable(EventInitializationChanged.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> scheduleUpdateGUI("EventInitializationChanged"),
+                        FabricPrivacy::logException
+                ));
+        disposable.add(RxBus.INSTANCE
                 .toObservable(EventPumpStatusChanged.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(event -> updatePumpStatus(event.getStatus()),
@@ -915,11 +933,6 @@ public class OverviewFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Subscribe
-    public void onStatusEvent(final EventInitializationChanged ev) {
-        scheduleUpdateGUI("EventInitializationChanged");
-    }
-
-    @Subscribe
     public void onStatusEvent(final EventPreferenceChange ev) {
         scheduleUpdateGUI("EventPreferenceChange");
     }
@@ -930,18 +943,8 @@ public class OverviewFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Subscribe
-    public void onStatusEvent(final EventCareportalEventChange ev) {
-        scheduleUpdateGUI("EventCareportalEventChange");
-    }
-
-    @Subscribe
     public void onStatusEvent(final EventNewOpenLoopNotification ev) {
         scheduleUpdateGUI("EventNewOpenLoopNotification");
-    }
-
-    @Subscribe
-    public void onStatusEvent(final EventAcceptOpenLoopChange ev) {
-        scheduleUpdateGUI("EventAcceptOpenLoopChange");
     }
 
     @Subscribe
