@@ -916,6 +916,12 @@ public class OverviewFragment extends Fragment implements View.OnClickListener, 
                         FabricPrivacy::logException
                 ));
         disposable.add(RxBus.INSTANCE
+                .toObservable(EventAutosensCalculationFinished.class)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(event -> scheduleUpdateGUI("EventAutosensCalculationFinished"),
+                        FabricPrivacy::logException
+                ));
+        disposable.add(RxBus.INSTANCE
                 .toObservable(EventPumpStatusChanged.class)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(event -> updatePumpStatus(event.getStatus()),
@@ -935,11 +941,6 @@ public class OverviewFragment extends Fragment implements View.OnClickListener, 
     @Subscribe
     public void onStatusEvent(final EventPreferenceChange ev) {
         scheduleUpdateGUI("EventPreferenceChange");
-    }
-
-    @Subscribe
-    public void onStatusEvent(final EventAutosensCalculationFinished ev) {
-        scheduleUpdateGUI("EventAutosensCalculationFinished");
     }
 
     @Subscribe
