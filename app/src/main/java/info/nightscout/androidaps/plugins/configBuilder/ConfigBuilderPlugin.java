@@ -61,14 +61,12 @@ public class ConfigBuilderPlugin extends PluginBase {
 
     @Override
     protected void onStart() {
-        MainApp.bus().register(this);
         super.onStart();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        MainApp.bus().unregister(this);
     }
 
 
