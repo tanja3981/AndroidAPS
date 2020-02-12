@@ -109,7 +109,7 @@ android {
         targetSdkVersion 28
         multiDexEnabled true
         versionCode 1500
-        version "2.5.1"
+        version "2.5.1.noUpdateCheck"
         buildConfigField "String", "VERSION", '"' + version + '"'
         buildConfigField "String", "BUILDVERSION", '"' + generateGitBuild() + '-' + generateDate() + '"'
         buildConfigField "String", "REMOTE", '"' + generateGitRemote() + '"'
@@ -341,6 +341,6 @@ printf('isMaster: %s\n', isMaster().toString())
 printf('allCommited: %s\n', allCommited().toString())
 printf('--------------\n')
 if (isMaster() && !allCommited()) {
-    throw new GradleException('There are uncommitted changes or git system is not available. Clone sources again as described in wiki and do not allow gradle update')
+    //throw new GradleException('There are uncommitted changes or git system is not available. Clone sources again as described in wiki and do not allow gradle update')
 }
 
