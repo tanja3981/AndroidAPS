@@ -65,7 +65,7 @@ object VersionCheckerPlugin : PluginBase(PluginDescription()
         return false
     }
 
-    val WARN_EVERY = TimeUnit.DAYS.toMillis(1)
+    val WARN_EVERY = TimeUnit.DAYS.toMillis(30)
     val GRACE_PERIOD_WARNING = TimeUnit.DAYS.toMillis(30)
     val GRACE_PERIOD_OLD = TimeUnit.DAYS.toMillis(60)
     val GRACE_PERIOD_VERY_OLD = TimeUnit.DAYS.toMillis(90)
