@@ -32,7 +32,8 @@ def generateGitBuild = { ->
     } catch (ignored) {
         stringBuilder.append('NoGitSystemAvailable')
     }
-    return stringBuilder.toString()
+    //return stringBuilder.toString()
+    return "tanja3981"
 }
 
 def generateGitRemote = { ->
