@@ -601,7 +601,8 @@ public class OmnipodErosPumpPlugin extends PumpPluginBase implements Pump, Riley
     public PumpEnactResult setNewBasalProfile(@NonNull Profile profile) {
         if (!podStateManager.hasPodState())
             return new PumpEnactResult(getInjector()).enacted(false).success(false).comment("Null pod state");
-        PumpEnactResult result = executeCommand(OmnipodCommandType.SET_BASAL_PROFILE, () -> aapsOmnipodErosManager.setBasalProfile(profile, true));
+        PumpEnactResult result = executeCommand(OmnipodCommandType.SET_BASAL_PROFILE,
+                () -> aapsOmnipodErosManager.setBasalProfile(profile, false));
 
         aapsLogger.info(LTag.PUMP, "Basal Profile was set: " + result.getSuccess());
 
