@@ -233,7 +233,7 @@ class DanaRSPlugin @Inject constructor(
             rxBus.send(EventDismissNotification(Notification.PROFILE_NOT_SET_NOT_INITIALIZED))
             rxBus.send(EventDismissNotification(Notification.FAILED_UPDATE_PROFILE))
             val notification = Notification(Notification.PROFILE_SET_OK, rh.gs(R.string.profile_set_ok), Notification.INFO, 60)
-            rxBus.send(EventNewNotification(notification))
+            //rxBus.send(EventNewNotification(notification))
             result.success = true
             result.enacted = true
             result.comment = "OK"
