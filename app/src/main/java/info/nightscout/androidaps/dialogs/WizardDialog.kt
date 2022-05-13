@@ -32,7 +32,7 @@ import info.nightscout.androidaps.plugins.configBuilder.ConstraintChecker
 import info.nightscout.androidaps.utils.*
 import info.nightscout.androidaps.utils.protection.ProtectionCheck
 import info.nightscout.androidaps.utils.protection.ProtectionCheck.Protection.BOLUS
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.androidaps.utils.rx.AapsSchedulers
 import info.nightscout.androidaps.utils.wizard.BolusWizard
 import info.nightscout.shared.SafeParse
@@ -248,10 +248,10 @@ class WizardDialog : DaggerDialogFragment() {
     }
 
     private fun setA11yLabels() {
-        binding.bgInput.editText?.id?.let { binding.bgInputLabel.labelFor = it }
-        binding.carbsInput.editText?.id?.let { binding.carbsInputLabel.labelFor = it }
-        binding.correctionInput.editText?.id?.let { binding.correctionInputLabel.labelFor = it }
-        binding.carbTimeInput.editText?.id?.let { binding.carbTimeInputLabel.labelFor = it }
+        binding.bgInputLabel.labelFor = binding.bgInput.editTextId
+        binding.carbsInputLabel.labelFor = binding.carbsInput.editTextId
+        binding.correctionInputLabel.labelFor = binding.correctionInput.editTextId
+        binding.carbTimeInputLabel.labelFor = binding.carbTimeInput.editTextId
     }
 
     override fun onDestroyView() {

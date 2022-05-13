@@ -28,7 +28,7 @@ import info.nightscout.androidaps.plugins.iob.iobCobCalculator.CobInfo
 import info.nightscout.androidaps.utils.DateUtil
 import info.nightscout.androidaps.utils.DefaultValueHelper
 import info.nightscout.androidaps.utils.T
-import info.nightscout.androidaps.utils.resources.ResourceHelper
+import info.nightscout.androidaps.interfaces.ResourceHelper
 import info.nightscout.shared.logging.AAPSLogger
 import info.nightscout.shared.sharedPreferences.SP
 import java.util.*
@@ -183,7 +183,7 @@ class OverviewData @Inject constructor(
         } ?: R.drawable.ic_cp_basal_no_tbr
 
     fun temporaryBasalColor(context: Context?, iobCobCalculator: IobCobCalculator): Int = iobCobCalculator.getTempBasalIncludingConvertedExtended(dateUtil.now())?.let { rh.gac(context , R.attr.basal) }
-            ?: rh.gac(context, R.attr.textAppearancemediumColor)
+            ?: rh.gac(context, R.attr.defaultTextColor)
 
     /*
      * EXTENDED BOLUS
