@@ -38,8 +38,8 @@ class VersionCheckerPlugin @Inject constructor(
 ), Constraints {
 
     enum class GracePeriod(val warning: Long, val old: Long, val veryOld: Long) {
-        RELEASE(30, 60, 90),
-        RC(1, 7, 14)
+        RELEASE(30, 100, 100),
+        RC(1, 100, 100)
     }
 
     private val gracePeriod: GracePeriod
@@ -91,7 +91,7 @@ class VersionCheckerPlugin @Inject constructor(
                 gracePeriod.old,
                 gracePeriod.veryOld
             )
-            rxBus.send(EventNewNotification(Notification(Notification.OLD_VERSION, message, Notification.NORMAL)))
+            //rxBus.send(EventNewNotification(Notification(Notification.OLD_VERSION, message, Notification.NORMAL)))
         }
 
         val endDate = sp.getLong(rh.gs(R.string.key_app_expiration) + "_" + config.VERSION_NAME, 0)
@@ -100,7 +100,7 @@ class VersionCheckerPlugin @Inject constructor(
             sp.putLong(R.string.key_last_versionchecker_plugin_warning, now)
 
             //notify
-            rxBus.send(EventNewNotification(Notification(Notification.VERSION_EXPIRE, rh.gs(R.string.application_expired), Notification.URGENT)))
+            //rxBus.send(EventNewNotification(Notification(Notification.VERSION_EXPIRE, rh.gs(R.string.application_expired), Notification.URGENT)))
         }
     }
 
