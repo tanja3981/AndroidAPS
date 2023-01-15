@@ -780,11 +780,7 @@ class ComboV2Plugin @Inject constructor (
                         activeBasalProfile = requestedBasalProfile
                         updateBaseBasalRateUI()
 
-                        uiInteraction.addNotificationValidFor(
-                            Notification.PROFILE_SET_OK,
-                            rh.gs(info.nightscout.core.ui.R.string.profile_set_ok),
-                            Notification.INFO,
-                            60
+                       // uiInteraction.addNotificationValidFor(                            Notification.PROFILE_SET_OK,                            rh.gs(info.nightscout.core.ui.R.string.profile_set_ok),                            Notification.INFO,                            60
                         )
                     } else {
                         aapsLogger.debug(LTag.PUMP, "Basal profiles are equal; did not have to set anything")

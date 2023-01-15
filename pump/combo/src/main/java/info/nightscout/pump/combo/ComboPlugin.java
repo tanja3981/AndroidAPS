@@ -292,8 +292,7 @@ public class ComboPlugin extends PumpPluginBase implements Pump, Constraints {
         rxBus.send(new EventDismissNotification(Notification.PROFILE_NOT_SET_NOT_INITIALIZED));
         rxBus.send(new EventDismissNotification(Notification.FAILED_UPDATE_PROFILE));
         //issue success notification
-        uiInteraction.addNotificationValidFor(Notification.PROFILE_SET_OK,
-                getRh().gs(info.nightscout.core.ui.R.string.profile_set_ok), Notification.INFO, 60);
+        //uiInteraction.addNotificationValidFor(Notification.PROFILE_SET_OK,                getRh().gs(info.nightscout.core.ui.R.string.profile_set_ok), Notification.INFO, 60);
         return new PumpEnactResult(getInjector()).success(true).enacted(true);
     }
 
