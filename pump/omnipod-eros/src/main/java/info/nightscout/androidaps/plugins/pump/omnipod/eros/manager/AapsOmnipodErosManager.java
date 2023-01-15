@@ -346,7 +346,7 @@ public class AapsOmnipodErosManager {
         addSuccessToHistory(historyEntryType, profile.getBasalValues());
 
         if (showNotifications) {
-            showNotification(Notification.PROFILE_SET_OK, rh.gs(info.nightscout.core.ui.R.string.profile_set_ok), Notification.INFO, null);
+            //showNotification(Notification.PROFILE_SET_OK, rh.gs(info.nightscout.core.ui.R.string.profile_set_ok), Notification.INFO, null);
         }
 
         dismissNotification(Notification.FAILED_UPDATE_PROFILE);
