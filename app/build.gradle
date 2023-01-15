@@ -13,6 +13,9 @@ plugins {
 
 apply from: "${project.rootDir}/core/main/android_dependencies.gradle"
 apply from: "${project.rootDir}/core/main/jacoco_global.gradle"
+if(new File("sign.gradle").exists()) {
+    apply from: "sign.gradle"
+}
 
 repositories {
     mavenCentral()
